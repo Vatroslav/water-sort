@@ -229,22 +229,30 @@ body {
   transition: transform 0.3s ease-in-out;
 }
 
-.bottle.hint {
-  animation: hint 0.7s ease-in-out 2;
+/* Cilj poteza koji je predlozio gumb "Potez" - izvorna boca je u isto vrijeme
+   podignuta (.selected), pa se vidi smjer, ne samo par boca. */
+.bottle.hint-target .glass {
+  border-color: rgba(255, 210, 63, 0.95);
+  animation: target-pulse 0.9s ease-in-out infinite;
+}
+
+@keyframes target-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 6px 14px rgba(0, 0, 0, 0.35),
+      0 0 0 2px rgba(255, 210, 63, 0.45);
+  }
+  50% {
+    box-shadow:
+      0 6px 14px rgba(0, 0, 0, 0.35),
+      0 0 0 6px rgba(255, 210, 63, 0.18),
+      0 0 18px rgba(255, 210, 63, 0.5);
+  }
 }
 
 .bottle.nope {
   animation: nope 0.28s ease-in-out;
-}
-
-@keyframes hint {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-12px);
-  }
 }
 
 @keyframes nope {

@@ -36,6 +36,8 @@
   var winMoves = document.getElementById("win-moves");
   var stuckEl = document.getElementById("stuck");
   var stuckDismissed = false;
+  var plan = null; // zapamceno rjesenje koje gumb "Potez" servira potez po potez
+  var planKey = null;
 
   var bottlesWrap = document.createElement("div");
   bottlesWrap.id = "bottles";
@@ -138,6 +140,7 @@
     selected = -1;
     solved = false;
     stuckDismissed = false;
+    dropPlan();
     winEl.hidden = true;
     hideStuck();
     render();
@@ -286,6 +289,7 @@
   function onTap(i) {
     if (busy || solved) return;
     SFX.unlock();
+    clearHintMark();
     if (selected === -1) {
       if (!state[i].length || G.isDone(state[i])) {
         SFX.nope();
@@ -363,8 +367,16 @@
       .then(function () {
         src.classList.remove("pouring");
         src.style.transformOrigin = "";
+        var followedPlan =
+          plan && plan.length && planKey === G.key(state) && plan[0][0] === from && plan[0][1] === to;
         G.pour(state, from, to);
         moves++;
+        if (followedPlan) {
+          plan.shift();
+          planKey = G.key(state);
+        } else {
+          dropPlan();
+        }
         if (G.isDone(state[to]) && state[to].length === CAP) {
           SFX.complete();
           vibrate([10, 40, 10]);
@@ -422,6 +434,7 @@
     selected = -1;
     solved = false;
     stuckDismissed = false;
+    dropPlan();
     winEl.hidden = true;
     hideStuck();
     SFX.undo();
@@ -445,6 +458,7 @@
     extraUsed = true;
     selected = -1;
     stuckDismissed = false;
+    dropPlan();
     hideStuck();
     SFX.select();
     render();
@@ -452,30 +466,51 @@
     setTimeout(checkStuck, 450);
   }
 
+  /* Cijelo rjesenje se izracuna jednom i onda se servira potez po potez.
+     Da se svaki put racuna iznova, hint bi znao vrtjeti u krug: rjesenje koje solver
+     nade nije najkrace, pa prvi potez novog rjesenja zna biti bas ponistavanje
+     prethodnog. Dok se igrac drzi plana, plan vodi do kraja. */
+  function nextPlanned() {
+    if (plan && plan.length && planKey === G.key(state)) return plan[0];
+    var sol = L.solve(state, 120000);
+    if (!sol) {
+      plan = null;
+      planKey = null;
+      return sol; // null = dokazano nerjesivo, undefined = prekid na limitu
+    }
+    plan = sol;
+    planKey = G.key(state);
+    return plan[0];
+  }
+
+  function dropPlan() {
+    plan = null;
+    planKey = null;
+  }
+
+  function clearHintMark() {
+    for (var i = 0; i < bottleEls.length; i++) bottleEls[i].classList.remove("hint-target");
+  }
+
   function hint() {
     if (busy || solved) return;
-    var sol = L.solve(state, 120000);
-    if (sol === null) {
+    var m = nextPlanned();
+    if (m === null) {
       stuckDismissed = false;
       showStuck();
       return;
     }
-    if (sol === undefined || !sol.length) {
+    if (m === undefined) {
       toast("Ne mogu naći potez odavde.", 2400);
       SFX.nope();
       return;
     }
-    var m = sol[0];
+    // Izvorna boca se podigne kao da si je sam tapnuo, ciljna zasvijetli - smjer je time
+    // nedvosmislen. Tapkanje istog para u obrnutom smjeru zna biti legalno, ali gubitnicko.
     SFX.select();
-    [m[0], m[1]].forEach(function (i) {
-      var el = bottleEls[i];
-      el.classList.remove("hint");
-      void el.offsetWidth;
-      el.classList.add("hint");
-      setTimeout(function () {
-        el.classList.remove("hint");
-      }, 1500);
-    });
+    clearHintMark();
+    select(m[0]);
+    bottleEls[m[1]].classList.add("hint-target");
   }
 
   function win() {
