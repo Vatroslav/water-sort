@@ -6,6 +6,7 @@
   var L = window.WSLevels;
   var SFX = window.WSAudio;
   var CAP = G.CAP;
+  var ASPECT = 3.05; // odnos visine i sirine boce
 
   var KEY_SAVE = "ws:save";
   var KEY_OPTS = "ws:opts";
@@ -149,7 +150,7 @@
     for (var rows = 1; rows <= 3; rows++) {
       var cols = Math.ceil(count / rows);
       var byW = (W - gap * (cols + 1)) / cols;
-      var byH = (H - gap * 1.7 * (rows + 1)) / rows / 2.55;
+      var byH = (H - gap * 1.7 * (rows + 1)) / rows / ASPECT;
       var bw = Math.min(byW, byH, 76);
       pick = { rows: rows, cols: cols, bw: bw, gap: gap };
       if (bw >= 44 || rows === 3) break;
@@ -161,7 +162,7 @@
   function render() {
     var lay = computeLayout(state.length);
     document.documentElement.style.setProperty("--bw", lay.bw.toFixed(1) + "px");
-    document.documentElement.style.setProperty("--bh", (lay.bw * 2.55).toFixed(1) + "px");
+    document.documentElement.style.setProperty("--bh", (lay.bw * ASPECT).toFixed(1) + "px");
     document.documentElement.style.setProperty("--gap", lay.gap + "px");
 
     bottlesWrap.innerHTML = "";
