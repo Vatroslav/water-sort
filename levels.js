@@ -7,20 +7,23 @@
   var G = global.WSGame;
   var CAP = G.CAP;
 
-  // Prvih nekoliko boja su najrazlicitije medusobno - lake razine koriste bas njih.
+  /* Prvih nekoliko boja su najrazlicitije medusobno - lake razine koriste bas njih.
+     Paleta je birana tako da najbliza dva para budu perceptivno dovoljno daleko
+     (OKLab udaljenost; najslabiji par je ljubicasta/plava, 0.131). Kod izmjene
+     provjeriti da nova boja nije bliza od toga nekoj postojecoj. */
   var PALETTE = [
-    "#ef3b4b",
-    "#2f9bf5",
-    "#ffd23f",
-    "#21bf73",
-    "#8b5cf6",
-    "#f98e28",
-    "#16c2c2",
-    "#e341c4",
-    "#8fd14f",
-    "#3b4de0",
-    "#a0693c",
-    "#cfd8e3",
+    "#ef3b4b", // crvena
+    "#2f9bf5", // nebo
+    "#ffd23f", // zuta
+    "#17a35f", // zelena
+    "#8b5cf6", // ljubicasta
+    "#f98e28", // narancasta
+    "#19d3d3", // tirkizna
+    "#e341c4", // magenta
+    "#ff8fb3", // roza
+    "#3b4de0", // plava
+    "#a0693c", // smeda
+    "#cfd8e3", // celicna
   ];
 
   function mulberry32(seed) {
