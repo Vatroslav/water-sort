@@ -17,7 +17,8 @@ Slagalica s prelijevanjem obojane tekućine: prelij tako da svaka boca na kraju 
 - **Svaka razina je provjereno rješiva** - generator odbacuje razmještaje koje solver ne uspije riješiti
 - Ista razina je uvijek ista slagalica (seedani generator), pa "Ponovno" vraća identičnu početnu poziciju
 - Neograničeni **Vrati** (undo), **Ponovno**, jedna dodatna prazna **Boca** po razini
-- **Potez** - solver pokaže sljedeći potez koji vodi do rješenja; ako je pozicija zaglavljena, to i kaže
+- **Potez** - solver pokaže sljedeći potez koji vodi do rješenja
+- **Prepoznaje zaglavljenu poziciju** - čim solver dokaže da se iz trenutne pozicije više ne može doći do rješenja, igra sama javi i ponudi izlaz (vrati potez, dodaj praznu bocu, kreni ispočetka); provjera se vrti nakon svakog poteza
 - Pamti razinu, potez i najbolji rezultat po razini (localStorage)
 - Zvuk se sintetizira u WebAudiju - nema audio datoteka
 

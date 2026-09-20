@@ -74,16 +74,6 @@
     return parts.join("|");
   }
 
-  // Ima li uopce iti jedan legalan potez.
-  function hasAnyMove(state) {
-    for (var f = 0; f < state.length; f++) {
-      for (var t = 0; t < state.length; t++) {
-        if (canPour(state, f, t) && !(isUniform(state[f]) && state[t].length === 0)) return true;
-      }
-    }
-    return false;
-  }
-
   global.WSGame = {
     CAP: CAP,
     topColor: topColor,
@@ -96,6 +86,5 @@
     isSolved: isSolved,
     clone: clone,
     key: key,
-    hasAnyMove: hasAnyMove,
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);

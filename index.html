@@ -26,6 +26,7 @@
           <span class="label">Razina</span>
           <span id="level-num">1</span>
         </div>
+        <span id="version"></span>
         <div class="stats">
           <span id="moves">0 poteza</span>
           <span id="best" class="best"></span>
@@ -56,6 +57,19 @@
     </div>
 
     <div id="toast" class="toast" role="status"></div>
+
+    <div id="stuck" class="overlay" hidden>
+      <div class="win-card">
+        <div class="win-title stuck">Zaglavljeno</div>
+        <div class="win-sub">Iz ove pozicije se više ne može doći do rješenja.</div>
+        <div class="stuck-actions">
+          <button id="stuck-undo" class="primary">Vrati potez</button>
+          <button id="stuck-bottle" class="secondary">Dodaj praznu bocu</button>
+          <button id="stuck-restart" class="secondary">Kreni ispočetka</button>
+        </div>
+        <div class="win-hint">Dodirni izvan okvira da pogledaš ploču.</div>
+      </div>
+    </div>
 
     <div id="win" class="overlay" hidden>
       <div class="win-card">

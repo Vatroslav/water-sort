@@ -50,6 +50,7 @@ body {
 /* --- Gornja traka ----------------------------------------------------- */
 
 #topbar {
+  position: relative;
   flex: 0 0 auto;
   display: flex;
   align-items: center;
@@ -75,6 +76,17 @@ body {
   font-size: 26px;
   font-weight: 700;
   line-height: 1;
+}
+
+#version {
+  position: absolute;
+  left: 50%;
+  top: 8px;
+  transform: translateX(-50%);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: #6c6390;
+  pointer-events: none;
 }
 
 .stats {
@@ -360,6 +372,42 @@ body {
   margin: 6px 0 18px;
   color: var(--muted);
   font-size: 14px;
+}
+
+.win-title.stuck {
+  color: #ff7b6b;
+}
+
+.stuck-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 230px;
+}
+
+.win-hint {
+  margin-top: 14px;
+  font-size: 11px;
+  color: #7d73a8;
+}
+
+.secondary {
+  padding: 13px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.secondary:active {
+  transform: scale(0.96);
+}
+
+.secondary[hidden],
+.primary[hidden] {
+  display: none;
 }
 
 .primary {

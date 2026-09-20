@@ -34,6 +34,8 @@
   var toastEl = document.getElementById("toast");
   var winEl = document.getElementById("win");
   var winMoves = document.getElementById("win-moves");
+  var stuckEl = document.getElementById("stuck");
+  var stuckDismissed = false;
 
   var bottlesWrap = document.createElement("div");
   bottlesWrap.id = "bottles";
@@ -135,7 +137,9 @@
     extraUsed = false;
     selected = -1;
     solved = false;
+    stuckDismissed = false;
     winEl.hidden = true;
+    hideStuck();
     render();
     save();
   }
@@ -233,6 +237,30 @@
     document.getElementById("hint-btn").disabled = solved;
   }
 
+  /* --- Zaglavljena pozicija ----------------------------------------------- */
+
+  /* Solver dokaze da se iz trenutne pozicije vise ne moze doci do rjesenja.
+     Prosjecna provjera je ispod milisekunde, najgora izmjerena 16 ms, pa se vrti
+     nakon svake promjene stanja. Ako solver stane na limitu cvorova (undefined),
+     nista se ne tvrdi - game over se prikazuje samo na dokaz. */
+  function checkStuck() {
+    if (solved || busy) return;
+    if (L.solve(state, 30000) === null) showStuck();
+  }
+
+  function showStuck() {
+    if (stuckDismissed) return;
+    document.getElementById("stuck-undo").hidden = undoStack.length === 0;
+    document.getElementById("stuck-bottle").hidden = extraUsed;
+    stuckEl.hidden = false;
+    SFX.nope();
+    vibrate([30, 80, 30]);
+  }
+
+  function hideStuck() {
+    stuckEl.hidden = true;
+  }
+
   /* --- Odabir i potezi ---------------------------------------------------- */
 
   function select(i) {
@@ -285,6 +313,7 @@
 
   function doPour(from, to) {
     busy = true;
+    stuckDismissed = false;
     undoStack.push({ s: G.clone(state), m: moves, e: extraUsed });
     if (undoStack.length > 200) undoStack.shift();
 
@@ -345,7 +374,7 @@
         render();
         save();
         if (G.isSolved(state)) win();
-        else if (!G.hasAnyMove(state)) toast("Nema više poteza - vrati potez ili kreni ponovno.");
+        else setTimeout(checkStuck, 380);
       });
   }
 
@@ -392,10 +421,15 @@
     extraUsed = snap.e;
     selected = -1;
     solved = false;
+    stuckDismissed = false;
     winEl.hidden = true;
+    hideStuck();
     SFX.undo();
     render();
     save();
+    // Vracanje jednog poteza ne mora izvuci iz zaglavljene pozicije - ako ne izvuce,
+    // ekran se vraca, ali tek nakon sto se vidi da je potez stvarno vracen.
+    setTimeout(checkStuck, 450);
   }
 
   function restart() {
@@ -410,17 +444,20 @@
     state.push([]);
     extraUsed = true;
     selected = -1;
+    stuckDismissed = false;
+    hideStuck();
     SFX.select();
     render();
     save();
+    setTimeout(checkStuck, 450);
   }
 
   function hint() {
     if (busy || solved) return;
     var sol = L.solve(state, 120000);
     if (sol === null) {
-      toast("Ova pozicija nema rješenja - vrati potez ili kreni ponovno.", 3200);
-      SFX.nope();
+      stuckDismissed = false;
+      showStuck();
       return;
     }
     if (sol === undefined || !sol.length) {
@@ -444,6 +481,7 @@
   function win() {
     solved = true;
     selected = -1;
+    hideStuck();
     var prev = best[level];
     if (!prev || moves < prev) best[level] = moves;
     saveOpts();
@@ -555,6 +593,14 @@
   document.getElementById("addbottle-btn").addEventListener("click", addBottle);
   document.getElementById("hint-btn").addEventListener("click", hint);
   document.getElementById("next-btn").addEventListener("click", nextLevel);
+  document.getElementById("stuck-undo").addEventListener("click", undo);
+  document.getElementById("stuck-bottle").addEventListener("click", addBottle);
+  document.getElementById("stuck-restart").addEventListener("click", restart);
+  stuckEl.addEventListener("click", function (e) {
+    if (e.target !== stuckEl) return;
+    stuckDismissed = true;
+    hideStuck();
+  });
 
   var soundBtn = document.getElementById("sound-btn");
   soundBtn.addEventListener("click", function () {
@@ -580,14 +626,31 @@
 
   /* --- Start -------------------------------------------------------------- */
 
+  // Verzija se cita iz package.json da ne postoji drugi izvor istine.
+  // Preko file:// fetch ne prolazi - tada se broj jednostavno ne prikazuje.
+  function showVersion() {
+    fetch("package.json")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (p) {
+        if (p && p.version) document.getElementById("version").textContent = "v" + p.version;
+      })
+      .catch(function () {
+        /* nema verzije za prikaz */
+      });
+  }
+
   function boot() {
     var restored = loadAll();
     SFX.setEnabled(opts.sound);
     soundBtn.classList.toggle("off", !opts.sound);
     document.getElementById("sound-ico").innerHTML = opts.sound ? "&#9835;" : "&#9834;";
+    showVersion();
     if (restored) {
       render();
       if (G.isSolved(state)) win();
+      else setTimeout(checkStuck, 500);
     } else {
       startLevel(1);
     }
