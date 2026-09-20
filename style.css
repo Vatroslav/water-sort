@@ -1,0 +1,410 @@
+:root {
+  --bg-1: #2a1d4d;
+  --bg-2: #171029;
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-edge: rgba(255, 255, 255, 0.38);
+  --text: #f3eefe;
+  --muted: #a99ed0;
+  --accent: #ffd23f;
+  --bw: 56px;
+  --bh: 150px;
+  --gap: 12px;
+  --seg: 25%;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  background: radial-gradient(120% 90% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 70%) fixed;
+  color: var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  padding: calc(env(safe-area-inset-top) + 8px) 10px calc(env(safe-area-inset-bottom) + 8px);
+}
+
+/* --- Gornja traka ----------------------------------------------------- */
+
+#topbar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 4px 8px;
+}
+
+.level-box {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.level-box .label {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+#level-num {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.stats .best {
+  font-size: 11px;
+  color: #7d73a8;
+}
+
+.icon-btn {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-btn.off {
+  color: #6c6390;
+}
+
+/* --- Ploca s bocama --------------------------------------------------- */
+
+#board {
+  position: relative;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--gap) * 1.6);
+  min-height: 0;
+}
+
+#fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 30;
+}
+
+#bottles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--gap) * 1.7);
+  width: 100%;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: var(--gap);
+}
+
+.bottle {
+  position: relative;
+  width: var(--bw);
+  height: var(--bh);
+  cursor: pointer;
+  transition:
+    transform 0.18s cubic-bezier(0.34, 1.4, 0.64, 1),
+    filter 0.18s ease;
+  will-change: transform;
+}
+
+.bottle .glass {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 2px solid var(--glass-edge);
+  border-radius: 8px 8px 24px 24px;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.13) 0%,
+    var(--glass) 34%,
+    rgba(255, 255, 255, 0.04) 100%
+  );
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.35),
+    inset 0 0 12px rgba(255, 255, 255, 0.07);
+}
+
+.bottle .seg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: var(--seg);
+  background: var(--c);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -2px 6px rgba(0, 0, 0, 0.22);
+  transition:
+    height 0.12s linear,
+    bottom 0.12s linear;
+}
+
+.bottle .gloss {
+  position: absolute;
+  top: 6%;
+  bottom: 12%;
+  left: 12%;
+  width: 14%;
+  border-radius: 50px;
+  background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.05));
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.bottle.selected {
+  transform: translateY(-18px);
+  filter: drop-shadow(0 0 10px rgba(255, 210, 63, 0.55));
+}
+
+.bottle.done .glass {
+  border-color: rgba(255, 210, 63, 0.75);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.35),
+    0 0 14px rgba(255, 210, 63, 0.35);
+}
+
+.bottle.pouring {
+  z-index: 20;
+  transition: transform 0.3s ease-in-out;
+}
+
+.bottle.hint {
+  animation: hint 0.7s ease-in-out 2;
+}
+
+.bottle.nope {
+  animation: nope 0.28s ease-in-out;
+}
+
+@keyframes hint {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes nope {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+.stream {
+  position: absolute;
+  z-index: 25;
+  width: 9px;
+  border-radius: 6px;
+  background: var(--c);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.25);
+  transform-origin: top center;
+  transform: scaleY(0);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.09s linear,
+    opacity 0.09s linear,
+    height 0.12s linear;
+}
+
+.stream.on {
+  transform: scaleY(1);
+  opacity: 1;
+}
+
+/* --- Kontrole --------------------------------------------------------- */
+
+#controls {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  padding-top: 10px;
+}
+
+.ctrl {
+  flex: 1 1 0;
+  min-height: 54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    transform 0.1s ease,
+    opacity 0.15s ease;
+}
+
+.ctrl:active {
+  transform: scale(0.95);
+}
+
+.ctrl .ico {
+  font-size: 19px;
+  line-height: 1;
+}
+
+.ctrl[disabled] {
+  opacity: 0.32;
+  cursor: default;
+}
+
+/* --- Overlay i toast --------------------------------------------------- */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 6, 22, 0.72);
+  backdrop-filter: blur(3px);
+}
+
+.overlay[hidden] {
+  display: none;
+}
+
+.win-card {
+  text-align: center;
+  padding: 28px 30px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, #3a2a68, #241a3d);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  animation: pop 0.32s cubic-bezier(0.34, 1.5, 0.64, 1);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.win-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--accent);
+}
+
+.win-sub {
+  margin: 6px 0 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.primary {
+  padding: 14px 26px;
+  border: 0;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffd85c, #f0a91e);
+  color: #3a2708;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary:active {
+  transform: scale(0.96);
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 86px);
+  transform: translate(-50%, 14px);
+  z-index: 50;
+  max-width: 82vw;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(20, 13, 38, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (min-width: 620px) {
+  #app {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+}

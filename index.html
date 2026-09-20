@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="hr">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Water Sort</title>
+    <meta name="theme-color" content="#241a3d" />
+    <meta
+      name="description"
+      content="Slaganje obojane tekucine u boce. Bez reklama, bez interneta, bez racuna."
+    />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header id="topbar">
+        <div class="level-box">
+          <span class="label">Razina</span>
+          <span id="level-num">1</span>
+        </div>
+        <div class="stats">
+          <span id="moves">0 poteza</span>
+          <span id="best" class="best"></span>
+        </div>
+        <button id="sound-btn" class="icon-btn" aria-label="Zvuk">
+          <span id="sound-ico">&#9835;</span>
+        </button>
+      </header>
+
+      <main id="board" aria-label="Boce">
+        <canvas id="fx"></canvas>
+      </main>
+
+      <footer id="controls">
+        <button id="undo-btn" class="ctrl">
+          <span class="ico">&#8630;</span><span class="txt">Vrati</span>
+        </button>
+        <button id="restart-btn" class="ctrl">
+          <span class="ico">&#10227;</span><span class="txt">Ponovno</span>
+        </button>
+        <button id="addbottle-btn" class="ctrl">
+          <span class="ico">&#43;</span><span class="txt">Boca</span>
+        </button>
+        <button id="hint-btn" class="ctrl">
+          <span class="ico">&#9758;</span><span class="txt">Potez</span>
+        </button>
+      </footer>
+    </div>
+
+    <div id="toast" class="toast" role="status"></div>
+
+    <div id="win" class="overlay" hidden>
+      <div class="win-card">
+        <div class="win-title">Riješeno!</div>
+        <div class="win-sub"><span id="win-moves"></span></div>
+        <button id="next-btn" class="primary">Sljedeća razina</button>
+      </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script src="levels.js"></script>
+    <script src="audio.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
