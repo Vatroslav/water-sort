@@ -7,23 +7,27 @@
   var G = global.WSGame;
   var CAP = G.CAP;
 
-  /* Prvih nekoliko boja su najrazlicitije medusobno - lake razine koriste bas njih.
-     Paleta je birana tako da najbliza dva para budu perceptivno dovoljno daleko
-     (OKLab udaljenost; najslabiji par je ljubicasta/plava, 0.131). Kod izmjene
-     provjeriti da nova boja nije bliza od toga nekoj postojecoj. */
+  /* Paleta je namjerno podijeljena u dvije obitelji: pune boje (svjetlina 0.5-0.7,
+     zasicenost 0.15-0.23) i pastelne (svjetlina 0.83-0.92, zasicenost 0.08-0.15), plus
+     jedna tamna (smeda). Obitelj nosi razliku i ondje gdje je ton slican, pa se boje
+     razdvajaju i na uskim segmentima.
+     Redoslijed nije proizvoljan - rane razine koriste prvih N boja, pa je poredak
+     slozen pohlepno tako da je svaki prefiks palete sto razlicitiji (3 boje: min 0.354,
+     6 boja: 0.201, svih 12: 0.149 OKLab udaljenosti).
+     Provjera i crtez: python scripts/palette-wheel.py */
   var PALETTE = [
-    "#ef3b4b", // crvena
-    "#2f9bf5", // nebo
-    "#ffd23f", // zuta
-    "#17a35f", // zelena
-    "#8b5cf6", // ljubicasta
-    "#f98e28", // narancasta
-    "#19d3d3", // tirkizna
-    "#e341c4", // magenta
-    "#ff8fb3", // roza
-    "#3b4de0", // plava
-    "#a0693c", // smeda
-    "#cfd8e3", // celicna
+    "#1f5ed9", // plava (puna)
+    "#fed454", // zuta (pastel)
+    "#e52300", // crvena (puna)
+    "#25984d", // zelena (puna)
+    "#94cdff", // nebo (pastel)
+    "#7c5223", // smeda (tamna)
+    "#d533ad", // magenta (puna)
+    "#dd9300", // narancasta (puna)
+    "#a8f9d8", // menta (pastel)
+    "#935adf", // ljubicasta (puna)
+    "#ffbdcf", // roza (pastel)
+    "#00b6be", // tirkizna (puna)
   ];
 
   function mulberry32(seed) {

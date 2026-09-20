@@ -18,7 +18,7 @@ R_MAX = 330.0  # radijus koji odgovara zasicenosti C_MAX
 C_MAX = 0.26
 
 # Boje koje su zamijenjene - crtaju se supljim krugom, crtkano vezanim uz nasljednicu.
-OLD = [("limeta", "#8fd14f", "roza")]
+OLD = []  # nema zabiljezenih starih boja
 
 # Komentari u levels.js su bez dijakritika (stil ostalih komentara u repou) - za ispis se vracaju.
 NAMES = {
@@ -75,9 +75,9 @@ def read_palette(path="levels.js"):
     block = src[src.index("var PALETTE = [") : src.index("];", src.index("var PALETTE = ["))]
     out = []
     for line in block.splitlines():
-        m = re.search(r'"(#[0-9a-fA-F]{6})",\s*//\s*(.+?)\s*$', line)
+        m = re.search(r'"(#[0-9a-fA-F]{6})",\s*//\s*([^(]+?)\s*(?:\((.+)\))?\s*$', line)
         if m:
-            out.append((m.group(2), m.group(1)))
+            out.append((m.group(2), m.group(1), m.group(3) or ""))
     return out
 
 
@@ -135,7 +135,7 @@ def draw(path):
     pal = read_palette()
 
     # stare boje - supalj krug i crtkana veza prema novoj na istom indeksu imena
-    new_by_name = {n: h for n, h in pal}
+    new_by_name = {p[0]: p[1] for p in pal}
     for name, hexv, successor in OLD:
         L, C, hue = lch(hexv)
         x, y = pos(C, hue)
@@ -166,7 +166,7 @@ def draw(path):
                     )
 
     # boje palete
-    for idx, (name, hexv) in enumerate(pal):
+    for idx, (name, hexv, family) in enumerate(pal):
         L, C, hue = lch(hexv)
         x, y = pos(C, hue)
         r = 13 + 20 * max(0.0, min(1.0, (L - 0.45) / 0.45))
@@ -204,18 +204,21 @@ def draw(path):
         "kut = ton boje",
         "udaljenost od središta = zasićenost",
         "veličina točke = svjetlina",
-        "šuplji krug = boja prije izmjene",
         "",
-        "PROMJENE",
-        "limeta → ružičasta (ton 132° → 0°)",
-        "zelena: svjetlina 0.71 → 0.63",
-        "tirkizna: svjetlina 0.74 → 0.79",
+        "DVIJE OBITELJI",
+        "pune: svjetlina 0.5-0.7,",
+        "      zasićenost 0.15-0.23",
+        "pastelne: svjetlina 0.83-0.92,",
+        "      zasićenost 0.08-0.15",
+        "smeda je jedina tamna",
         "",
-        "UDALJENOSTI (OKLab)",
-        "zelena / tirkizna  0.184",
-        "zelena / limeta prije  0.106",
-        "najbliži par sad:",
-        "ljubičasta / plava  0.131",
+        "NAJMANJA UDALJENOST (OKLab)",
+        "sada  0.149",
+        "prije 0.131",
+        "",
+        "Redoslijed u paleti je slozen",
+        "tako da rane razine dobiju",
+        "najrazličitije boje.",
     ]
     for i, t in enumerate(lines):
         d.text((s(lx), s(ly + 38 + i * 24)), t, font=font(15), fill=(168, 158, 205))
