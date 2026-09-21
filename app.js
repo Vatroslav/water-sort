@@ -34,8 +34,6 @@
   var toastEl = document.getElementById("toast");
   var winEl = document.getElementById("win");
   var winMoves = document.getElementById("win-moves");
-  var stuckEl = document.getElementById("stuck");
-  var stuckDismissed = false;
   var plan = null; // zapamceno rjesenje koje gumb "Potez" servira potez po potez
   var planKey = null;
 
@@ -139,10 +137,8 @@
     extraUsed = false;
     selected = -1;
     solved = false;
-    stuckDismissed = false;
     dropPlan();
     winEl.hidden = true;
-    hideStuck();
     render();
     save();
   }
@@ -240,28 +236,31 @@
     document.getElementById("hint-btn").disabled = solved;
   }
 
-  /* --- Zaglavljena pozicija ----------------------------------------------- */
+  /* --- Slijepa ulica ------------------------------------------------------ */
 
-  /* Solver dokaze da se iz trenutne pozicije vise ne moze doci do rjesenja.
-     Prosjecna provjera je ispod milisekunde, najgora izmjerena 16 ms, pa se vrti
-     nakon svake promjene stanja. Ako solver stane na limitu cvorova (undefined),
-     nista se ne tvrdi - game over se prikazuje samo na dokaz. */
-  function checkStuck() {
-    if (solved || busy) return;
-    if (L.solve(state, 30000) === null) showStuck();
+  /* Potez nakon kojeg solver dokaze da vise nema rjesenja se ne dopusta, pa se u
+     zaglavljenu poziciju ne moze ni uci. Zabranjuje se samo na dokaz (null) - prekid
+     na limitu (undefined) pusta potez. Izmjereno na 111k poteza (razine 1-120):
+     prosjek 0,2 ms, nula krivih zabrana u usporedbi s iscrpnom pretragom.
+     Ako rjesenja nema vec sada (spremljena igra iz verzije prije ove zabrane), svaki
+     potez bi bio zabranjen - tada se ne zabranjuje nista. */
+  function leadsToDeadEnd(from, to) {
+    var next = G.clone(state);
+    G.pour(next, from, to);
+    if (L.solve(next, 30000) !== null) return false;
+    return L.solve(state, 30000) !== null;
   }
 
-  function showStuck() {
-    if (stuckDismissed) return;
-    document.getElementById("stuck-undo").hidden = undoStack.length === 0;
-    document.getElementById("stuck-bottle").hidden = extraUsed;
-    stuckEl.hidden = false;
-    SFX.nope();
-    vibrate([30, 80, 30]);
-  }
-
-  function hideStuck() {
-    stuckEl.hidden = true;
+  function markBlocked(i) {
+    var el = bottleEls[i];
+    var old = el.querySelector(".block-x");
+    if (old) el.removeChild(old);
+    var x = document.createElement("div");
+    x.className = "block-x";
+    el.appendChild(x);
+    setTimeout(function () {
+      if (x.parentNode) x.parentNode.removeChild(x);
+    }, 950);
   }
 
   /* --- Odabir i potezi ---------------------------------------------------- */
@@ -306,6 +305,14 @@
       return;
     }
     if (G.canPour(state, selected, i)) {
+      if (leadsToDeadEnd(selected, i)) {
+        // Izvor ostaje podignut - igrac bira drugi cilj.
+        SFX.nope();
+        vibrate([30, 60, 30]);
+        shake(i);
+        markBlocked(i);
+        return;
+      }
       doPour(selected, i);
       return;
     }
@@ -317,7 +324,6 @@
 
   function doPour(from, to) {
     busy = true;
-    stuckDismissed = false;
     undoStack.push({ s: G.clone(state), m: moves, e: extraUsed });
     if (undoStack.length > 200) undoStack.shift();
 
@@ -386,7 +392,6 @@
         render();
         save();
         if (G.isSolved(state)) win();
-        else setTimeout(checkStuck, 380);
       });
   }
 
@@ -433,16 +438,11 @@
     extraUsed = snap.e;
     selected = -1;
     solved = false;
-    stuckDismissed = false;
     dropPlan();
     winEl.hidden = true;
-    hideStuck();
     SFX.undo();
     render();
     save();
-    // Vracanje jednog poteza ne mora izvuci iz zaglavljene pozicije - ako ne izvuce,
-    // ekran se vraca, ali tek nakon sto se vidi da je potez stvarno vracen.
-    setTimeout(checkStuck, 450);
   }
 
   function restart() {
@@ -457,13 +457,10 @@
     state.push([]);
     extraUsed = true;
     selected = -1;
-    stuckDismissed = false;
     dropPlan();
-    hideStuck();
     SFX.select();
     render();
     save();
-    setTimeout(checkStuck, 450);
   }
 
   /* Cijelo rjesenje se izracuna jednom i onda se servira potez po potez.
@@ -496,8 +493,9 @@
     if (busy || solved) return;
     var m = nextPlanned();
     if (m === null) {
-      stuckDismissed = false;
-      showStuck();
+      // Moguce samo u spremljenoj igri iz verzije prije zabrane poteza.
+      toast("Odavde nema rješenja - vrati potez ili kreni ispočetka.", 3000);
+      SFX.nope();
       return;
     }
     if (m === undefined) {
@@ -516,7 +514,6 @@
   function win() {
     solved = true;
     selected = -1;
-    hideStuck();
     var prev = best[level];
     if (!prev || moves < prev) best[level] = moves;
     saveOpts();
@@ -628,14 +625,6 @@
   document.getElementById("addbottle-btn").addEventListener("click", addBottle);
   document.getElementById("hint-btn").addEventListener("click", hint);
   document.getElementById("next-btn").addEventListener("click", nextLevel);
-  document.getElementById("stuck-undo").addEventListener("click", undo);
-  document.getElementById("stuck-bottle").addEventListener("click", addBottle);
-  document.getElementById("stuck-restart").addEventListener("click", restart);
-  stuckEl.addEventListener("click", function (e) {
-    if (e.target !== stuckEl) return;
-    stuckDismissed = true;
-    hideStuck();
-  });
 
   var soundBtn = document.getElementById("sound-btn");
   soundBtn.addEventListener("click", function () {
@@ -685,7 +674,6 @@
     if (restored) {
       render();
       if (G.isSolved(state)) win();
-      else setTimeout(checkStuck, 500);
     } else {
       startLevel(1);
     }

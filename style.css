@@ -327,6 +327,62 @@ body {
   line-height: 1;
 }
 
+/* Zabranjen potez: prelijevanje u ovu bocu vodi u poziciju iz koje nema rjesenja.
+   Tamni disk ispod X-a je tu da se X vidi i preko crvene tekucine. */
+.bottle .block-x {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 5;
+  width: calc(var(--bw) * 0.92);
+  height: calc(var(--bw) * 0.92);
+  margin: calc(var(--bw) * -0.46) 0 0 calc(var(--bw) * -0.46);
+  border: 3px solid #ff4d4d;
+  border-radius: 50%;
+  background: rgba(16, 8, 24, 0.72);
+  box-shadow: 0 0 14px rgba(255, 77, 77, 0.55);
+  pointer-events: none;
+  animation: block-x 0.9s ease-out forwards;
+}
+
+.bottle .block-x::before,
+.bottle .block-x::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 50%;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: #ff4d4d;
+  transform: rotate(45deg);
+}
+
+.bottle .block-x::after {
+  transform: rotate(-45deg);
+}
+
+@keyframes block-x {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  18% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .ctrl[disabled] {
   opacity: 0.32;
   cursor: default;
@@ -380,42 +436,6 @@ body {
   margin: 6px 0 18px;
   color: var(--muted);
   font-size: 14px;
-}
-
-.win-title.stuck {
-  color: #ff7b6b;
-}
-
-.stuck-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  min-width: 230px;
-}
-
-.win-hint {
-  margin-top: 14px;
-  font-size: 11px;
-  color: #7d73a8;
-}
-
-.secondary {
-  padding: 13px 22px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--text);
-  font-size: 15px;
-  cursor: pointer;
-}
-
-.secondary:active {
-  transform: scale(0.96);
-}
-
-.secondary[hidden],
-.primary[hidden] {
-  display: none;
 }
 
 .primary {
