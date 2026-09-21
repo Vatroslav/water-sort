@@ -45,8 +45,10 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+  // no-cache = pitaj server je li se datoteka promijenila (304 ako nije). Bez toga je
+  // HTTP cache znao dati stari levels.js uz novi app.js - pola stare, pola nove verzije.
   e.respondWith(
-    fetch(e.request)
+    fetch(e.request, { cache: "no-cache" })
       .then((resp) => {
         const copy = resp.clone();
         caches.open(CACHE).then((c) => c.put(e.request, copy));
