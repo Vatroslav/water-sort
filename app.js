@@ -463,13 +463,14 @@
     save();
   }
 
-  /* Cijelo rjesenje se izracuna jednom i onda se servira potez po potez.
-     Da se svaki put racuna iznova, hint bi znao vrtjeti u krug: rjesenje koje solver
-     nade nije najkrace, pa prvi potez novog rjesenja zna biti bas ponistavanje
-     prethodnog. Dok se igrac drzi plana, plan vodi do kraja. */
+  /* Cijelo rjesenje se izracuna jednom i onda se servira potez po potez. Dok se igrac
+     drzi plana, plan vodi do kraja - novo racunanje bi smjelo izabrati drugo, jednako
+     kratko rjesenje, pa bi hint preskakao s jednog plana na drugi.
+     Plan je najkrace rjesenje; dubinski solve() je rezerva ako A* stane na limitu. */
   function nextPlanned() {
     if (plan && plan.length && planKey === G.key(state)) return plan[0];
-    var sol = L.solve(state, 120000);
+    var sol = L.solveShortest(state, 30000);
+    if (sol === undefined) sol = L.solve(state, 120000);
     if (!sol) {
       plan = null;
       planKey = null;

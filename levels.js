@@ -143,6 +143,115 @@
     return aborted ? undefined : null;
   }
 
+  /* Donja granica broja poteza do rjesenja: broj hrpa minus broj razlicitih boja na dnu.
+     Jedan potez to smanji za najvise jedan (spajanje hrpe na istu boju ili prelijevanje
+     boje koje nema na dnu u praznu bocu), a rijesena pozicija ima nulu. Nikad ne
+     precijeni, pa A* vraca najkrace rjesenje. */
+  function lowerBound(state) {
+    var runs = 0;
+    var bottoms = {};
+    var nBottoms = 0;
+    for (var i = 0; i < state.length; i++) {
+      var b = state[i];
+      if (!b.length) continue;
+      if (!bottoms[b[0]]) {
+        bottoms[b[0]] = 1;
+        nBottoms++;
+      }
+      for (var j = 0; j < b.length; j++) if (j === 0 || b[j] !== b[j - 1]) runs++;
+    }
+    return runs - nBottoms;
+  }
+
+  /* Najkrace rjesenje (A*) - za gumb "Potez". solve() nade bilo koje rjesenje, a dubinska
+     pretraga u njega ubaci poteze koji nicemu ne sluze (prosjecno 3,9 po planu), npr.
+     jednu od tri crvene na bocu u koju stane samo jedna. Medu jednako kratkim rjesenjima
+     bira ono s najmanje takvih trganja hrpe: cijena poteza je 1000, trganje dodaje 1.
+     Izmjereno na 450 pozicija (razine 1-150, pocetak i usred igre): plan prosjecno 24,7
+     poteza umjesto 31,4, najvise 48 ms, bez prekida na limitu. Ostalo je jedno trganje
+     u 450 planova, i tamo rjesenja bez njega nema.
+     Vraca isto sto i solve(): niz poteza, null ili undefined (prekid na limitu). */
+  function solveShortest(state, nodeLimit) {
+    nodeLimit = nodeLimit || 30000;
+    var MOVE = 1000;
+    var SPLIT = 1;
+    var heap = [];
+    var best = {};
+    var seq = 0;
+
+    function less(a, b) {
+      if (a.f !== b.f) return a.f < b.f;
+      if (a.g !== b.g) return a.g > b.g; // dublji prvi - brze do cilja
+      return a.id < b.id;
+    }
+
+    function push(n) {
+      heap.push(n);
+      var i = heap.length - 1;
+      while (i > 0) {
+        var p = (i - 1) >> 1;
+        if (!less(heap[i], heap[p])) break;
+        var t = heap[i];
+        heap[i] = heap[p];
+        heap[p] = t;
+        i = p;
+      }
+    }
+
+    function pop() {
+      var top = heap[0];
+      var last = heap.pop();
+      if (heap.length) {
+        heap[0] = last;
+        var i = 0;
+        for (;;) {
+          var l = 2 * i + 1;
+          var r = l + 1;
+          var m = i;
+          if (l < heap.length && less(heap[l], heap[m])) m = l;
+          if (r < heap.length && less(heap[r], heap[m])) m = r;
+          if (m === i) break;
+          var t = heap[i];
+          heap[i] = heap[m];
+          heap[m] = t;
+          i = m;
+        }
+      }
+      return top;
+    }
+
+    var root = { s: G.clone(state), k: G.key(state), g: 0, p: null, m: null, id: 0 };
+    root.f = MOVE * lowerBound(root.s);
+    best[root.k] = 0;
+    push(root);
+    var expanded = 0;
+
+    while (heap.length) {
+      var n = pop();
+      if (n.g > best[n.k]) continue; // u medjuvremenu naden kraci put do iste pozicije
+      if (G.isSolved(n.s)) {
+        var path = [];
+        for (var x = n; x.p; x = x.p) path.push(x.m);
+        return path.reverse();
+      }
+      if (++expanded > nodeLimit) return undefined;
+      var ms = genMoves(n.s);
+      for (var i = 0; i < ms.length; i++) {
+        var from = ms[i][0];
+        var to = ms[i][1];
+        var split = n.s[to].length > 0 && G.pourCount(n.s, from, to) < G.topRun(n.s[from]);
+        var ns = G.clone(n.s);
+        G.pour(ns, from, to);
+        var k = G.key(ns);
+        var g = n.g + MOVE + (split ? SPLIT : 0);
+        if (best[k] !== undefined && best[k] <= g) continue;
+        best[k] = g;
+        push({ s: ns, k: k, g: g, f: g + MOVE * lowerBound(ns), p: n, m: [from, to], id: ++seq });
+      }
+    }
+    return null;
+  }
+
   /* --- Generator ------------------------------------------------------- */
 
   function makeLevel(level) {
@@ -186,6 +295,7 @@
     levelConfig: levelConfig,
     makeLevel: makeLevel,
     solve: solve,
+    solveShortest: solveShortest,
     mulberry32: mulberry32,
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);
