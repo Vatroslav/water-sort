@@ -24,7 +24,7 @@
   var best = {};
   var bottleEls = [];
   var segEls = [];
-  var opts = { sound: true, haptics: true };
+  var opts = { sound: true, haptics: true, block: true };
 
   var board = document.getElementById("board");
   var fx = document.getElementById("fx");
@@ -75,7 +75,7 @@
   function loadAll() {
     try {
       var o = JSON.parse(localStorage.getItem(KEY_OPTS) || "null");
-      if (o) opts = { sound: o.sound !== false, haptics: o.haptics !== false };
+      if (o) opts = { sound: o.sound !== false, haptics: o.haptics !== false, block: o.block !== false };
     } catch (e) {
       /* pokvareni zapis - ostaju zadane postavke */
     }
@@ -305,7 +305,7 @@
       return;
     }
     if (G.canPour(state, selected, i)) {
-      if (leadsToDeadEnd(selected, i)) {
+      if (opts.block && leadsToDeadEnd(selected, i)) {
         // Izvor ostaje podignut - igrac bira drugi cilj.
         SFX.nope();
         vibrate([30, 60, 30]);
@@ -627,13 +627,57 @@
   document.getElementById("hint-btn").addEventListener("click", hint);
   document.getElementById("next-btn").addEventListener("click", nextLevel);
 
-  var soundBtn = document.getElementById("sound-btn");
-  soundBtn.addEventListener("click", function () {
-    opts.sound = !opts.sound;
+  /* --- Izbornik ----------------------------------------------------------- */
+
+  var menuEl = document.getElementById("menu");
+  var menuMain = document.getElementById("menu-main");
+  var menuOpts = document.getElementById("menu-opts");
+  var optSound = document.getElementById("opt-sound");
+  var optBlock = document.getElementById("opt-block");
+
+  function openMenu() {
+    if (busy) return;
+    clearHintMark();
+    deselect();
+    document.getElementById("menu-level").textContent = "Razina " + level;
+    menuOpts.hidden = true;
+    menuMain.hidden = false;
+    menuEl.hidden = false;
+  }
+
+  function play() {
+    SFX.unlock();
+    SFX.select();
+    menuEl.hidden = true;
+    showFirstTip();
+  }
+
+  document.getElementById("menu-btn").addEventListener("click", openMenu);
+  document.getElementById("play-btn").addEventListener("click", play);
+  document.getElementById("opts-btn").addEventListener("click", function () {
+    SFX.unlock();
+    SFX.select();
+    optSound.checked = opts.sound;
+    optBlock.checked = opts.block;
+    menuMain.hidden = true;
+    menuOpts.hidden = false;
+  });
+  document.getElementById("opts-back").addEventListener("click", function () {
+    SFX.drop();
+    menuOpts.hidden = true;
+    menuMain.hidden = false;
+  });
+
+  optSound.addEventListener("change", function () {
+    opts.sound = optSound.checked;
     SFX.setEnabled(opts.sound);
-    soundBtn.classList.toggle("off", !opts.sound);
-    document.getElementById("sound-ico").innerHTML = opts.sound ? "&#9835;" : "&#9834;";
     if (opts.sound) SFX.select();
+    saveOpts();
+  });
+
+  optBlock.addEventListener("change", function () {
+    opts.block = optBlock.checked;
+    SFX.select();
     saveOpts();
   });
 
@@ -669,8 +713,6 @@
   function boot() {
     var restored = loadAll();
     SFX.setEnabled(opts.sound);
-    soundBtn.classList.toggle("off", !opts.sound);
-    document.getElementById("sound-ico").innerHTML = opts.sound ? "&#9835;" : "&#9834;";
     showVersion();
     if (restored) {
       render();
@@ -678,13 +720,16 @@
     } else {
       startLevel(1);
     }
-    if (!localStorage.getItem(KEY_SEEN)) {
-      toast("Tapni bocu pa drugu - ista boja se slijeva na istu.", 4200);
-      try {
-        localStorage.setItem(KEY_SEEN, "1");
-      } catch (e) {
-        /* ignoriraj */
-      }
+    openMenu();
+  }
+
+  function showFirstTip() {
+    if (localStorage.getItem(KEY_SEEN)) return;
+    toast("Tapni bocu pa drugu - ista boja se slijeva na istu.", 4200);
+    try {
+      localStorage.setItem(KEY_SEEN, "1");
+    } catch (e) {
+      /* ignoriraj */
     }
   }
 

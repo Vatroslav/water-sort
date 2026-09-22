@@ -31,9 +31,7 @@
           <span id="moves">0 poteza</span>
           <span id="best" class="best"></span>
         </div>
-        <button id="sound-btn" class="icon-btn" aria-label="Zvuk">
-          <span id="sound-ico">&#9835;</span>
-        </button>
+        <button id="menu-btn" class="icon-btn" aria-label="Izbornik">&#9776;</button>
       </header>
 
       <main id="board" aria-label="Boce">
@@ -63,6 +61,32 @@
         <div class="win-title">Riješeno!</div>
         <div class="win-sub"><span id="win-moves"></span></div>
         <button id="next-btn" class="primary">Sljedeća razina</button>
+      </div>
+    </div>
+
+    <div id="menu" class="overlay screen">
+      <div class="menu-card" id="menu-main">
+        <div class="menu-title">Water Sort</div>
+        <div class="menu-sub" id="menu-level"></div>
+        <button id="play-btn" class="primary wide">Igraj</button>
+        <button id="opts-btn" class="secondary wide">Opcije</button>
+      </div>
+      <div class="menu-card" id="menu-opts" hidden>
+        <div class="menu-head">Opcije</div>
+        <label class="opt">
+          <span class="opt-txt">
+            <span class="opt-name">Zvuk</span>
+          </span>
+          <input type="checkbox" id="opt-sound" class="switch" />
+        </label>
+        <label class="opt">
+          <span class="opt-txt">
+            <span class="opt-name">Blokiraj poteze bez izlaza</span>
+            <span class="opt-desc">Potez nakon kojeg razina više nije rješiva se ne izvrši.</span>
+          </span>
+          <input type="checkbox" id="opt-block" class="switch" />
+        </label>
+        <button id="opts-back" class="secondary wide">Natrag</button>
       </div>
     </div>
 
