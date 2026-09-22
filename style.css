@@ -66,14 +66,14 @@ body {
 }
 
 .level-box .label {
-  font-size: 13px;
+  font-size: 16px;
   color: var(--muted);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 #level-num {
-  font-size: 26px;
+  font-size: 30px;
   font-weight: 700;
   line-height: 1;
 }
@@ -83,7 +83,7 @@ body {
   left: 50%;
   top: 8px;
   transform: translateX(-50%);
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.06em;
   color: #6c6390;
   pointer-events: none;
@@ -94,24 +94,24 @@ body {
   flex-direction: column;
   align-items: flex-end;
   margin-left: auto;
-  font-size: 13px;
+  font-size: 17px;
   color: var(--muted);
 }
 
 .stats .best {
-  font-size: 11px;
+  font-size: 14px;
   color: #7d73a8;
 }
 
 .icon-btn {
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 46px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
-  font-size: 18px;
+  font-size: 24px;
   line-height: 1;
   cursor: pointer;
 }
@@ -297,7 +297,7 @@ body {
 
 .ctrl {
   flex: 1 1 0;
-  min-height: 54px;
+  min-height: 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -307,7 +307,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.07);
   color: var(--text);
-  font-size: 12px;
+  font-size: 16px;
   cursor: pointer;
   transition:
     transform 0.1s ease,
@@ -319,7 +319,7 @@ body {
 }
 
 .ctrl .ico {
-  font-size: 19px;
+  font-size: 24px;
   line-height: 1;
 }
 
@@ -423,7 +423,7 @@ body {
 }
 
 .win-title {
-  font-size: 30px;
+  font-size: 36px;
   font-weight: 800;
   color: var(--accent);
 }
@@ -449,7 +449,7 @@ body {
 .win-sub {
   margin: 6px 0 18px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .primary {
@@ -458,7 +458,7 @@ body {
   border-radius: 14px;
   background: linear-gradient(180deg, #ffd85c, #f0a91e);
   color: #3a2708;
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -473,7 +473,7 @@ body {
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.07);
   color: var(--text);
-  font-size: 16px;
+  font-size: 22px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -509,7 +509,7 @@ body {
 }
 
 .menu-title {
-  font-size: 38px;
+  font-size: 44px;
   font-weight: 800;
   color: var(--accent);
   letter-spacing: 0.01em;
@@ -518,12 +518,12 @@ body {
 .menu-sub {
   margin: -4px 0 18px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .menu-level {
   margin: -2px 0 18px;
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 600;
   color: var(--muted);
 }
@@ -534,7 +534,7 @@ body {
   right: 0;
   bottom: calc(env(safe-area-inset-bottom) + 14px);
   text-align: center;
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.06em;
   color: #6c6390;
   pointer-events: none;
@@ -542,7 +542,7 @@ body {
 
 .menu-head {
   margin-bottom: 8px;
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 700;
 }
 
@@ -566,12 +566,12 @@ body {
 }
 
 .opt-name {
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 600;
 }
 
 .opt-desc {
-  font-size: 12px;
+  font-size: 15px;
   color: var(--muted);
 }
 
@@ -634,7 +634,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(255, 255, 255, 0.06);
   color: var(--text);
-  font-size: 17px;
+  font-size: 21px;
   font-weight: 700;
   cursor: pointer;
 }
@@ -644,7 +644,7 @@ body {
 }
 
 .lvl .lvl-best {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400;
   letter-spacing: 0.05em;
   color: var(--accent);
@@ -661,7 +661,7 @@ body {
 }
 
 .lvl .lvl-best.crown {
-  font-size: 14px;
+  font-size: 17px;
 }
 
 .lvl.current .lvl-best {
@@ -677,7 +677,7 @@ body {
 
 .stat-row {
   display: grid;
-  grid-template-columns: 84px 1fr auto;
+  grid-template-columns: 100px 1fr auto;
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
@@ -687,7 +687,7 @@ body {
 }
 
 .stat-ico {
-  font-size: 18px;
+  font-size: 22px;
   letter-spacing: 0.06em;
   color: var(--accent);
   text-align: left;
@@ -713,13 +713,13 @@ body {
 .stat-num {
   min-width: 70px;
   text-align: right;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 700;
 }
 
 .stat-num small {
   display: block;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 400;
   color: var(--muted);
 }
@@ -735,7 +735,7 @@ body {
   border-radius: 12px;
   background: rgba(20, 13, 38, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  font-size: 13px;
+  font-size: 17px;
   text-align: center;
   opacity: 0;
   pointer-events: none;
