@@ -521,6 +521,25 @@ body {
   font-size: 14px;
 }
 
+.menu-level {
+  margin: -2px 0 18px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.menu-version {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom) + 14px);
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: #6c6390;
+  pointer-events: none;
+}
+
 .menu-head {
   margin-bottom: 8px;
   font-size: 24px;

@@ -868,7 +868,10 @@
         return r.json();
       })
       .then(function (p) {
-        if (p && p.version) document.getElementById("version").textContent = "v" + p.version;
+        if (p && p.version) {
+          document.getElementById("version").textContent = "v" + p.version;
+          document.getElementById("menu-version").textContent = "v" + p.version;
+        }
       })
       .catch(function () {
         /* nema verzije za prikaz */
