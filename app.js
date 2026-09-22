@@ -632,6 +632,8 @@
   var menuEl = document.getElementById("menu");
   var menuMain = document.getElementById("menu-main");
   var menuOpts = document.getElementById("menu-opts");
+  var menuLevels = document.getElementById("menu-levels");
+  var levelGrid = document.getElementById("level-grid");
   var optSound = document.getElementById("opt-sound");
   var optBlock = document.getElementById("opt-block");
 
@@ -640,10 +642,60 @@
     clearHintMark();
     deselect();
     document.getElementById("menu-level").textContent = "Razina " + level;
-    menuOpts.hidden = true;
-    menuMain.hidden = false;
+    showCard(menuMain);
     menuEl.hidden = false;
   }
+
+  function showCard(card) {
+    menuMain.hidden = card !== menuMain;
+    menuOpts.hidden = card !== menuOpts;
+    menuLevels.hidden = card !== menuLevels;
+  }
+
+  /* Otkljucane su sve razine do prve nerijesene - izvodi se iz rekorda (ws:best) i
+     trenutne razine, pa ne treba zaseban zapis. */
+  function maxUnlocked() {
+    var m = level;
+    for (var k in best) if (best.hasOwnProperty(k) && Number(k) + 1 > m) m = Number(k) + 1;
+    return m;
+  }
+
+  function openLevels() {
+    SFX.unlock();
+    SFX.select();
+    levelGrid.innerHTML = "";
+    var max = maxUnlocked();
+    var cur = null;
+    for (var n = 1; n <= max; n++) {
+      var b = document.createElement("button");
+      b.className = "lvl";
+      b.dataset.n = String(n);
+      b.appendChild(document.createTextNode(String(n)));
+      if (best[n]) {
+        b.classList.add("solved");
+        var bs = document.createElement("span");
+        bs.className = "lvl-best";
+        bs.textContent = best[n];
+        b.appendChild(bs);
+      }
+      if (n === level) {
+        b.classList.add("current");
+        cur = b;
+      }
+      levelGrid.appendChild(b);
+    }
+    showCard(menuLevels);
+    if (cur) cur.scrollIntoView({ block: "center" });
+  }
+
+  levelGrid.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest(".lvl") : null;
+    if (!b) return;
+    var n = Number(b.dataset.n);
+    // Trenutna razina se nastavlja gdje je stala, ostale krecu ispocetka.
+    if (n !== level) startLevel(n);
+    play();
+  });
 
   function play() {
     SFX.unlock();
@@ -659,14 +711,15 @@
     SFX.select();
     optSound.checked = opts.sound;
     optBlock.checked = opts.block;
-    menuMain.hidden = true;
-    menuOpts.hidden = false;
+    showCard(menuOpts);
   });
-  document.getElementById("opts-back").addEventListener("click", function () {
+  document.getElementById("levels-btn").addEventListener("click", openLevels);
+  function back() {
     SFX.drop();
-    menuOpts.hidden = true;
-    menuMain.hidden = false;
-  });
+    showCard(menuMain);
+  }
+  document.getElementById("opts-back").addEventListener("click", back);
+  document.getElementById("levels-back").addEventListener("click", back);
 
   optSound.addEventListener("change", function () {
     opts.sound = optSound.checked;

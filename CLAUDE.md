@@ -28,8 +28,8 @@ Vanilla JS PWA bez build sustava. Sve u korijenu: `index.html`, `style.css`, `ga
 - Animacija prelijevanja je u `app.js` (`doPour`): boca se rotira oko svog grla
   (`transform-origin: 50% 0%`), pa grlo ostaje na izračunatoj točki iznad ciljne boce.
   Pozicije se mjere preko `offsetLeft/offsetTop` (bez transformacija), ne `getBoundingClientRect`.
-- Glavni izbornik (`#menu`) se otvara pri pokretanju i na gumb ☰; opcije se spremaju u
-  `localStorage` pod `ws:opts`.
+- Glavni izbornik (`#menu`) se otvara pri pokretanju i na gumb ☰ (Igraj, Razine, Opcije); opcije se spremaju u
+  `localStorage` pod `ws:opts`. Otključane razine se izvode iz `ws:best` (do prve neriješene), nema zasebnog zapisa.
 
 ## Ikone
 

@@ -577,6 +577,55 @@ body {
   transform: translateX(20px);
 }
 
+.level-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  max-height: 58vh;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  padding: 2px;
+}
+
+.lvl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lvl:active {
+  transform: scale(0.94);
+}
+
+.lvl .lvl-best {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.lvl.solved {
+  border-color: rgba(255, 210, 63, 0.55);
+}
+
+.lvl.current {
+  background: linear-gradient(180deg, #ffd85c, #f0a91e);
+  border-color: transparent;
+  color: #3a2708;
+}
+
+.lvl.current .lvl-best {
+  color: #6b4a10;
+}
+
 .toast {
   position: fixed;
   left: 50%;
