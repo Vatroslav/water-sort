@@ -30,6 +30,9 @@ Vanilla JS PWA bez build sustava. Sve u korijenu: `index.html`, `style.css`, `ga
   Pozicije se mjere preko `offsetLeft/offsetTop` (bez transformacija), ne `getBoundingClientRect`.
 - Glavni izbornik (`#menu`) se otvara pri pokretanju i na gumb ☰ (Igraj, Razine, Opcije); opcije se spremaju u
   `localStorage` pod `ws:opts`. Otključane razine se izvode iz `ws:best` (do prve neriješene), nema zasebnog zapisa.
+- Minimum poteza po razini = duljina `solveShortest` (egzaktan, A* heuristika ne precjenjuje),
+  trajno cacheiran u `ws:min`. Ocjena u `ws:stars`: 4 = kruna (točno minimum, bez dodatne
+  boce), 3 = do 110 %, 2 = do 150 %, 1 = riješeno. Pragovi bez zaokruživanja.
 
 ## Ikone
 

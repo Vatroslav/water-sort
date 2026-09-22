@@ -12,6 +12,8 @@
   var KEY_OPTS = "ws:opts";
   var KEY_BEST = "ws:best";
   var KEY_SEEN = "ws:seen-tip";
+  var KEY_MIN = "ws:min";
+  var KEY_STARS = "ws:stars";
 
   var state = [];
   var level = 1;
@@ -22,6 +24,8 @@
   var busy = false;
   var solved = false;
   var best = {};
+  var minMoves = {}; // najmanji moguci broj poteza po razini - razina je uvijek ista, pa se pamti trajno
+  var stars = {}; // najbolja ocjena po razini: 1-3 zvjezdice, 4 = kruna
   var bottleEls = [];
   var segEls = [];
   var opts = { sound: true, haptics: true, block: true };
@@ -85,6 +89,13 @@
       best = {};
     }
     try {
+      minMoves = JSON.parse(localStorage.getItem(KEY_MIN) || "{}") || {};
+      stars = JSON.parse(localStorage.getItem(KEY_STARS) || "{}") || {};
+    } catch (e) {
+      minMoves = {};
+      stars = {};
+    }
+    try {
       var s = JSON.parse(localStorage.getItem(KEY_SAVE) || "null");
       if (s && s.state && s.state.length) {
         level = s.level || 1;
@@ -121,6 +132,8 @@
     try {
       localStorage.setItem(KEY_OPTS, JSON.stringify(opts));
       localStorage.setItem(KEY_BEST, JSON.stringify(best));
+      localStorage.setItem(KEY_MIN, JSON.stringify(minMoves));
+      localStorage.setItem(KEY_STARS, JSON.stringify(stars));
     } catch (e) {
       /* ignoriraj */
     }
@@ -141,6 +154,49 @@
     winEl.hidden = true;
     render();
     save();
+    scheduleMin();
+  }
+
+  /* --- Minimum poteza i ocjena ------------------------------------------- */
+
+  /* A* heuristika nikad ne precjenjuje, pa je duljina najkraceg rjesenja egzaktan minimum
+     (provjereno BFS-om za razine 1-200, najsporija 47 ms). Prekid na limitu (undefined)
+     se ne pamti - minimum tada ostaje nepoznat i razina dobije samo zvjezdicu za rjesenje. */
+  function levelMin(n) {
+    if (minMoves[n]) return minMoves[n];
+    var sol = L.solveShortest(L.makeLevel(n).state, 200000);
+    if (!sol || !sol.length) return undefined;
+    minMoves[n] = sol.length;
+    return sol.length;
+  }
+
+  // Racuna se iza prvog rendera da ne koci ulaz u razinu.
+  function scheduleMin() {
+    if (minMoves[level]) return;
+    var n = level;
+    setTimeout(function () {
+      if (levelMin(n) && n === level) {
+        saveOpts();
+        updateHud();
+      }
+    }, 60);
+  }
+
+  /* 4 = kruna (tocno minimum), 3 = do 110 %, 2 = do 150 %, 1 = rijeseno.
+     Pragovi se usporeduju tocno, bez zaokruzivanja. Dodatna boca olaksava slagalicu,
+     pa s njom kruna nije moguca. */
+  function rating(m, min, extra) {
+    if (!min) return 1;
+    if (m <= min && !extra) return 4;
+    if (m <= min * 1.1) return 3;
+    if (m <= min * 1.5) return 2;
+    return 1;
+  }
+
+  function starsHtml(r) {
+    var h = r === 4 ? '<span class="crown">&#9819;</span>' : "";
+    for (var i = 1; i <= 3; i++) h += i <= r ? "&#9733;" : '<span class="off">&#9733;</span>';
+    return h;
   }
 
   /* --- Crtanje ----------------------------------------------------------- */
@@ -230,7 +286,10 @@
     levelNum.textContent = String(level);
     movesEl.textContent = moves + (moves % 10 === 1 && moves % 100 !== 11 ? " potez" : " poteza");
     var b = best[level];
-    bestEl.textContent = b ? "najbolje: " + b : "";
+    var mn = minMoves[level];
+    bestEl.textContent = [b ? "najbolje: " + b : "", mn ? "min: " + mn : ""]
+      .filter(Boolean)
+      .join(" · ");
     document.getElementById("undo-btn").disabled = undoStack.length === 0 || solved;
     document.getElementById("addbottle-btn").disabled = extraUsed || solved;
     document.getElementById("hint-btn").disabled = solved;
@@ -517,13 +576,18 @@
     selected = -1;
     var prev = best[level];
     if (!prev || moves < prev) best[level] = moves;
+    var mn = levelMin(level);
+    var r = rating(moves, mn, extraUsed);
+    if (!stars[level] || r > stars[level]) stars[level] = r;
     saveOpts();
     updateHud();
     SFX.win();
     vibrate([12, 60, 12, 60, 24]);
     confetti();
+    document.getElementById("win-stars").innerHTML = starsHtml(r);
     winMoves.textContent =
-      "Razina " + level + " u " + moves + " poteza" + (prev && moves < prev ? " - novi rekord!" : "");
+      "Razina " + level + " u " + moves + " poteza" + (mn ? " (min. " + mn + ")" : "") +
+      (r === 4 ? " - savršeno!" : prev && moves < prev ? " - novi rekord!" : "");
     setTimeout(function () {
       winEl.hidden = false;
     }, 650);
@@ -666,6 +730,7 @@
     levelGrid.innerHTML = "";
     var max = maxUnlocked();
     var cur = null;
+    backfillStars();
     for (var n = 1; n <= max; n++) {
       var b = document.createElement("button");
       b.className = "lvl";
@@ -674,8 +739,8 @@
       if (best[n]) {
         b.classList.add("solved");
         var bs = document.createElement("span");
-        bs.className = "lvl-best";
-        bs.textContent = best[n];
+        bs.className = "lvl-best" + (stars[n] === 4 ? " crown" : "");
+        bs.innerHTML = stars[n] === 4 ? "&#9819;" : new Array((stars[n] || 1) + 1).join("&#9733;");
         b.appendChild(bs);
       }
       if (n === level) {
@@ -686,6 +751,19 @@
     }
     showCard(menuLevels);
     if (cur) cur.scrollIntoView({ block: "center" });
+  }
+
+  /* Razine rijesene prije uvodenja ocjena imaju samo rekord. Ocjena se izvodi iz njega;
+     je li koristena dodatna boca se ne zna, osim kad je rekord ispod minimuma. */
+  function backfillStars() {
+    var changed = false;
+    for (var k in best) {
+      if (!best.hasOwnProperty(k) || stars[k]) continue;
+      var mn = levelMin(Number(k));
+      stars[k] = rating(best[k], mn, mn && best[k] < mn);
+      changed = true;
+    }
+    if (changed) saveOpts();
   }
 
   levelGrid.addEventListener("click", function (e) {
@@ -769,6 +847,7 @@
     showVersion();
     if (restored) {
       render();
+      scheduleMin();
       if (G.isSolved(state)) win();
     } else {
       startLevel(1);

@@ -428,6 +428,24 @@ body {
   color: var(--accent);
 }
 
+.win-stars {
+  margin-top: 8px;
+  font-size: 34px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.win-stars .off {
+  color: rgba(255, 255, 255, 0.18);
+}
+
+.win-stars .crown {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 40px;
+}
+
 .win-sub {
   margin: 6px 0 18px;
   color: var(--muted);
@@ -607,9 +625,10 @@ body {
 }
 
 .lvl .lvl-best {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 400;
-  color: var(--muted);
+  letter-spacing: 0.05em;
+  color: var(--accent);
 }
 
 .lvl.solved {
@@ -620,6 +639,10 @@ body {
   background: linear-gradient(180deg, #ffd85c, #f0a91e);
   border-color: transparent;
   color: #3a2708;
+}
+
+.lvl .lvl-best.crown {
+  font-size: 14px;
 }
 
 .lvl.current .lvl-best {
