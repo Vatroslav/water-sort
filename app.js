@@ -697,6 +697,7 @@
   var menuMain = document.getElementById("menu-main");
   var menuOpts = document.getElementById("menu-opts");
   var menuLevels = document.getElementById("menu-levels");
+  var menuStats = document.getElementById("menu-stats");
   var levelGrid = document.getElementById("level-grid");
   var optSound = document.getElementById("opt-sound");
   var optBlock = document.getElementById("opt-block");
@@ -714,6 +715,7 @@
     menuMain.hidden = card !== menuMain;
     menuOpts.hidden = card !== menuOpts;
     menuLevels.hidden = card !== menuLevels;
+    menuStats.hidden = card !== menuStats;
   }
 
   /* Otkljucane su sve razine do prve nerijesene - izvodi se iz rekorda (ws:best) i
@@ -766,6 +768,36 @@
     if (changed) saveOpts();
   }
 
+  /* Udio svake ocjene medu rijesenim razinama. */
+  function openStats() {
+    SFX.unlock();
+    SFX.select();
+    backfillStars();
+    var counts = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    var total = 0;
+    for (var k in best) {
+      if (!best.hasOwnProperty(k)) continue;
+      counts[stars[k] || 1]++;
+      total++;
+    }
+    document.getElementById("stats-total").textContent = "Riješeno razina: " + total;
+    var rows = document.getElementById("stats-rows");
+    rows.innerHTML = "";
+    for (var r = 4; r >= 1; r--) {
+      var pct = total ? Math.round((counts[r] * 100) / total) : 0;
+      var ico = r === 4 ? "&#9819;" : "";
+      if (r < 4) for (var i = 1; i <= 3; i++) ico += i <= r ? "&#9733;" : '<span class="off">&#9733;</span>';
+      var row = document.createElement("div");
+      row.className = "stat-row";
+      row.innerHTML =
+        '<span class="stat-ico">' + ico + "</span>" +
+        '<span class="stat-bar"><span style="width:' + pct + '%"></span></span>' +
+        '<span class="stat-num">' + counts[r] + "<small>" + pct + " %</small></span>";
+      rows.appendChild(row);
+    }
+    showCard(menuStats);
+  }
+
   levelGrid.addEventListener("click", function (e) {
     var b = e.target.closest ? e.target.closest(".lvl") : null;
     if (!b) return;
@@ -798,6 +830,8 @@
   }
   document.getElementById("opts-back").addEventListener("click", back);
   document.getElementById("levels-back").addEventListener("click", back);
+  document.getElementById("stats-btn").addEventListener("click", openStats);
+  document.getElementById("stats-back").addEventListener("click", back);
 
   optSound.addEventListener("change", function () {
     opts.sound = optSound.checked;

@@ -649,6 +649,62 @@ body {
   color: #6b4a10;
 }
 
+.stats-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: 84px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.stat-ico {
+  font-size: 18px;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  text-align: left;
+}
+
+.stat-ico .off {
+  color: rgba(255, 255, 255, 0.18);
+}
+
+.stat-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.stat-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #ffd85c, #f0a91e);
+}
+
+.stat-num {
+  min-width: 70px;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.stat-num small {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+}
+
 .toast {
   position: fixed;
   left: 50%;
