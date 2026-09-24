@@ -769,13 +769,53 @@
     document.getElementById("menu-level").textContent = "Razina " + level;
     showCard(menuMain);
     menuEl.hidden = false;
+    unguard();
   }
+
+  /* --- Tipka Natrag (Android) -------------------------------------------- */
+
+  /* Izvan glavnog izbornika (igra, Razine, Opcije, Statistika) u povijesti stoji jedan
+     dodatni zapis. Natrag ga potrosi i vrati na glavni izbornik umjesto da zatvori
+     aplikaciju; s glavnog izbornika Natrag zatvara kao i prije. */
+  var popping = false; // history.back() pokrenut iz koda, ne tipkom
+
+  function onMainMenu() {
+    return !menuEl.hidden && !menuMain.hidden;
+  }
+
+  function guard() {
+    if (!popping && !(history.state && history.state.ws)) history.pushState({ ws: 1 }, "");
+  }
+
+  function unguard() {
+    if (!popping && history.state && history.state.ws) {
+      popping = true;
+      history.back();
+    }
+  }
+
+  function openMenuWhenIdle() {
+    if (busy) setTimeout(openMenuWhenIdle, 50);
+    else openMenu();
+  }
+
+  window.addEventListener("popstate", function () {
+    if (popping) {
+      popping = false;
+      // U medjuvremenu se izaslo s glavnog izbornika - zapis treba vratiti.
+      if (!onMainMenu()) history.pushState({ ws: 1 }, "");
+      return;
+    }
+    if (menuEl.hidden) openMenuWhenIdle();
+    else if (menuMain.hidden) back();
+  });
 
   function showCard(card) {
     menuMain.hidden = card !== menuMain;
     menuOpts.hidden = card !== menuOpts;
     menuLevels.hidden = card !== menuLevels;
     menuStats.hidden = card !== menuStats;
+    if (card !== menuMain) guard();
   }
 
   /* Otkljucane su sve razine do prve nerijesene - izvodi se iz rekorda (ws:best) i
@@ -871,6 +911,7 @@
     SFX.unlock();
     SFX.select();
     menuEl.hidden = true;
+    guard();
     showFirstTip();
   }
 
@@ -887,6 +928,7 @@
   function back() {
     SFX.drop();
     showCard(menuMain);
+    unguard();
   }
   document.getElementById("opts-back").addEventListener("click", back);
   document.getElementById("levels-back").addEventListener("click", back);

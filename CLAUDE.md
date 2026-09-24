@@ -33,7 +33,10 @@ Vanilla JS PWA bez build sustava. Sve u korijenu: `index.html`, `style.css`, `ga
   (`transform-origin: 50% 0%`), pa grlo ostaje na izračunatoj točki iznad ciljne boce.
   Pozicije se mjere preko `offsetLeft/offsetTop` (bez transformacija), ne `getBoundingClientRect`.
 - Glavni izbornik (`#menu`) se otvara pri pokretanju i na gumb ☰ (Igraj, Razine, Statistika, Opcije); opcije se spremaju u
-  `localStorage` pod `ws:opts`. Otključane razine se izvode iz `ws:best` (do prve neriješene), nema zasebnog zapisa.
+  `localStorage` pod `ws:opts`.
+  Tipka Natrag (Android) izvan glavnog izbornika vraća na njega: dok igra ili podizbornik
+  traje, u povijesti stoji jedan dodatni zapis (`guard`/`unguard` + `popstate` u `app.js`).
+  S glavnog izbornika Natrag zatvara aplikaciju. Otključane razine se izvode iz `ws:best` (do prve neriješene), nema zasebnog zapisa.
 - Minimum poteza po razini = duljina `solveShortest` (egzaktan, A* heuristika ne precjenjuje),
   trajno cacheiran u `ws:min`. Ocjena u `ws:stars`: 4 = kruna (točno minimum, bez dodatne
   boce), 3 = do 110 %, 2 = do 150 %, 1 = riješeno. Pragovi bez zaokruživanja.
