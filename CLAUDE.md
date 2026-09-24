@@ -22,7 +22,11 @@ Vanilla JS PWA bez build sustava. Sve u korijenu: `index.html`, `style.css`, `ga
 - Solver (`WSLevels.solve`) vraća: niz poteza, `null` (dokazano nerješivo) ili `undefined`
   (prekid na limitu čvorova). Koristi ga generator (provjera rješivosti) i
   zabrana poteza: potez nakon kojeg je pozicija dokazano nerješiva se ne izvrši (crveni X na
-  ciljnoj boci), pa ekrana za game over nema. Zabrana se gasi u Opcijama (`opts.block`). Mijenjanje `solve` mijenja razine.
+  ciljnoj boci). Zabrana se gasi u Opcijama (`opts.block`). Mijenjanje `solve` mijenja razine.
+- Ekran "Zaglavljeno" (`#stuck`) se pojavi kad nema nijednog legalnog poteza (`hasMoves` u
+  `app.js`, ne solver): boce se odmah zakljucaju, ekran uđe s fade-inom nakon zadnjeg poteza.
+  Nudi vrati potez / dodaj bocu / kreni ispočetka; dodir izvan okvira ga zatvori (boce ostaju
+  zakljucane), gumb "Potez" ga vraca. Uz ukljucenu zabranu se prakticki ne pojavljuje.
 - Gumb "Potez" koristi `WSLevels.solveShortest` (A*, najkraće rješenje, izbjegava poteze
   koji trgaju hrpu); `solve` mu je samo rezerva ako A* stane na limitu.
 - Animacija prelijevanja je u `app.js` (`doPour`): boca se rotira oko svog grla

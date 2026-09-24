@@ -56,6 +56,19 @@
 
     <div id="toast" class="toast" role="status"></div>
 
+    <div id="stuck" class="overlay fade" hidden>
+      <div class="win-card">
+        <div class="win-title stuck">Zaglavljeno</div>
+        <div class="win-sub">Nema više mogućih poteza.</div>
+        <div class="stuck-actions">
+          <button id="stuck-undo" class="primary wide">Vrati potez</button>
+          <button id="stuck-bottle" class="secondary wide">Dodaj praznu bocu</button>
+          <button id="stuck-restart" class="secondary wide">Kreni ispočetka</button>
+        </div>
+        <div class="win-hint">Dodirni izvan okvira da pogledaš ploču.</div>
+      </div>
+    </div>
+
     <div id="win" class="overlay" hidden>
       <div class="win-card">
         <div class="win-title">Riješeno!</div>

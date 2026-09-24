@@ -38,6 +38,9 @@
   var toastEl = document.getElementById("toast");
   var winEl = document.getElementById("win");
   var winMoves = document.getElementById("win-moves");
+  var stuckEl = document.getElementById("stuck");
+  var stuck = false; // nema vise legalnih poteza - boce ne primaju dodir
+  var stuckDismissed = false;
   var plan = null; // zapamceno rjesenje koje gumb "Potez" servira potez po potez
   var planKey = null;
 
@@ -152,6 +155,7 @@
     solved = false;
     dropPlan();
     winEl.hidden = true;
+    clearStuck();
     render();
     save();
     scheduleMin();
@@ -322,6 +326,42 @@
     }, 950);
   }
 
+  /* --- Nema vise poteza --------------------------------------------------- */
+
+  /* Legalan potez = boca koja se smije podici (nije prazna ni gotova) i cilj u koji se
+     smije preliti. Blokirani potezi se ne broje zasebno: dok je pozicija rjesiva, bar jedan
+     potez vodi u rjesivu, a u nerjesivoj poziciji zabrana ionako ne vrijedi. */
+  function hasMoves() {
+    for (var a = 0; a < state.length; a++) {
+      if (G.isDone(state[a])) continue;
+      for (var b = 0; b < state.length; b++) if (G.canPour(state, a, b)) return true;
+    }
+    return false;
+  }
+
+  // Boce se zakljucaju odmah, ekran dode tek kad se vidi zadnji potez.
+  function checkStuck(delay) {
+    if (solved || hasMoves()) return;
+    stuck = true;
+    stuckDismissed = false;
+    setTimeout(showStuck, delay);
+  }
+
+  function showStuck() {
+    if (!stuck || stuckDismissed || solved) return;
+    document.getElementById("stuck-undo").hidden = undoStack.length === 0;
+    document.getElementById("stuck-bottle").hidden = extraUsed;
+    stuckEl.hidden = false;
+    SFX.nope();
+    vibrate([30, 80, 30]);
+  }
+
+  function clearStuck() {
+    stuck = false;
+    stuckDismissed = false;
+    stuckEl.hidden = true;
+  }
+
   /* --- Odabir i potezi ---------------------------------------------------- */
 
   function select(i) {
@@ -345,7 +385,7 @@
   }
 
   function onTap(i) {
-    if (busy || solved) return;
+    if (busy || solved || stuck) return;
     SFX.unlock();
     clearHintMark();
     if (selected === -1) {
@@ -451,6 +491,7 @@
         render();
         save();
         if (G.isSolved(state)) win();
+        else checkStuck(450);
       });
   }
 
@@ -499,9 +540,12 @@
     solved = false;
     dropPlan();
     winEl.hidden = true;
+    clearStuck();
     SFX.undo();
     render();
     save();
+    // Vracanje dodane boce vraca u poziciju bez poteza.
+    checkStuck(450);
   }
 
   function restart() {
@@ -517,6 +561,7 @@
     extraUsed = true;
     selected = -1;
     dropPlan();
+    clearStuck();
     SFX.select();
     render();
     save();
@@ -551,6 +596,12 @@
 
   function hint() {
     if (busy || solved) return;
+    if (stuck) {
+      // Ekran je bio zatvoren da se vidi ploca - potez odavde nema, pa se vraca.
+      stuckDismissed = false;
+      showStuck();
+      return;
+    }
     var m = nextPlanned();
     if (m === null) {
       // Moguce samo u spremljenoj igri iz verzije prije zabrane poteza.
@@ -690,6 +741,15 @@
   document.getElementById("addbottle-btn").addEventListener("click", addBottle);
   document.getElementById("hint-btn").addEventListener("click", hint);
   document.getElementById("next-btn").addEventListener("click", nextLevel);
+  document.getElementById("stuck-undo").addEventListener("click", undo);
+  document.getElementById("stuck-bottle").addEventListener("click", addBottle);
+  document.getElementById("stuck-restart").addEventListener("click", restart);
+  // Dodir izvan okvira zatvara ekran da se vidi ploca; boce ostaju zakljucane.
+  stuckEl.addEventListener("click", function (e) {
+    if (e.target !== stuckEl) return;
+    stuckDismissed = true;
+    stuckEl.hidden = true;
+  });
 
   /* --- Izbornik ----------------------------------------------------------- */
 
@@ -886,6 +946,7 @@
       render();
       scheduleMin();
       if (G.isSolved(state)) win();
+      else checkStuck(0);
     } else {
       startLevel(1);
     }
